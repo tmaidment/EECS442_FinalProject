@@ -1,0 +1,103 @@
+find E[Y=1 | A=(binary seatbelt)]
+
+need to take care of all associations between treatmet and outcome (covariates L)
+
+
+L = confounders or currogate confounders
+	- i think for us this is all confunders.  except maybe the drinking/drugs one
+
+--- Show table of all variables and differenec between them for different seatbelt treatments ---
+
+	- bassically blocking alll backdoor paths from A to Y
+
+STEP 1:
+
+find Pr[A=x | L=l] for all x,l
+	- log. reg.
+
+P[SEAT | ALC, SEX, AGE, OCC]
+= B0 + B1*ALC + B2*SEX + B3*AGE + B4*OCC + (dependencies) B5*OCC*AGE ???
+
+
+
+TODO:
+- Use sensitivity-analysis to show results aren't sensitive to even strong unmeasured confounders -- Rosenbaum & Rubin
+- MAKE SURE Positivity holds -- All possible outcomes happen at least once. i.e. every combo of covariates has at least once treated and one untreated
+	- When use parametric model, can check using "convex hull, King & Porro"
+	- OR *EASIER* Use Hernan's method descr. below
+
+
+1 - Make sure there is balance in observed covariates between treated and control in pop. weighted by inv prob or treatment
+	- Use formulas I sent tristan
+	- ** Diff > 10% is meaningful according to authors in wiley **
+2. - Make more complex model and run same set of formulae and compare outcome diagnostics (i think this means the differences)
+3 - Check positivity
+
+
+
+
+
+
+
+
+- make seatbelt binary
+- remove alc/drugs
+
+
+
+NEED
+consistency -- 
+exchangeability -- no unmeasured confounders (DAG shows this. realistically is unproavble so we argue our case)
+positivity --  *** 
+
+In the context of MSMs, which use IPTW to account for time‐varying treatment and confounding, Cole and Hernan recommend that analysts should determine the mean stabilized weight (note that this recommendation pertains only to when stabilized weights are used) and the standard deviation of the stabilized weights 16. Similarly, they suggest determining the minimum and maximum weights. They suggest that if the mean of the stabilized weights is far from one or if there are very extreme values, then this can be indicative of non‐positivity or that the propensity score model has been misspecified.
+
+***
+no misspecification of the propensity score model
+
+
+
+
+ On the other hand, if the covariate–outcome relationship cannot be easily approximated with parametric models, but the relationship between covariates and treatment selection can, it might be preferable to use IPTW. An applied researcher might use both methods of adjustment in the hope that the two methods would agree on their respective conclusions. If so, this would bolster faith in the robustness toward model choice. If not, this may be a hint that one of the models is misspecified
+
+
+
+
+
+
+ RED FLAGS (IPW):
+
+1. Relationship of dep-ind vars in model might not be linear
+2. May be interaction between independent vars
+	- Should I check colinearity or look into interaction terms?
+
+3. Interaction terms in general -- in Stdztn example in notes, two of covariates are considered interactions and product term is made
+
+4. What if we use all of the covariates instead of just the 3.  Theoretically we don't need to if our model works, but we don't know that it does.  So we could plot all covariates in each treatment group with corresponding difference % and ones that differ use for Weighting
+
+
+
+
+------------------------ STANDARDIZATION ------------------------
+
+- non-positivity can be ignored if we are relying on parametric extrapolation/smoothing BUT we are not doing this
+	- We need to make sure positivity holds
+	- This will be every combo of cov. and treatments occuring at least once
+
+- To easily to stdztn., just do log reg. on a + L1 + ... + Ln, but if we want to specify model correctly we should consider non-linear terms, as well as product terms between variables
+
+-----------------------------------------------------------------
+
+Steps to make model best it can be for IPW:
+
+1. Try adding squared term for the age of the person
+2. try using restricted cubic spline for age (sz 3)
+3. Try adding all vars with dependency > x% and use linear model (1)
+4. Try adding all vars with dependency > x% and use restricted cubic splines for all continuous data (2)
+
+**5. Check VIF for models vars if using many more terms.
+
+- these can be repeated for standardization on the modeling step.  Maybe add interaction between seatbelt and type of car (since some cars won't have seatbelts.  If type of car used)
+
+
+
